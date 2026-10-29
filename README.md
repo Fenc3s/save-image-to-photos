@@ -1,93 +1,67 @@
 # Save Image to Photos
 
-A dependency-free Manifest V3 Chrome extension for macOS. Right-click an image, choose **Save Image to Photos**, and select **Add to Photos** in the native macOS share sheet. No preparation page or companion application is required.
+A dependency-free Manifest V3 Chrome extension for macOS. Right-click a supported web image, choose **Save Image to Photos**, then choose **Add to Photos** in the native macOS share sheet. No companion app or preparation tab is required.
 
-**Local version: 0.2.3.** The local development extension was loaded and tested on October 29, 2026. Version 0.2.3 is the current release candidate. Store approval and public availability are separate from repository publication. See the store submission record for verified review status.
+Version **0.2.3** was submitted to the Chrome Web Store on October 29, 2026. Its verified status is **Pending review**, with automatic publication after approval. Repository publication does not imply store approval. See [the submission record](store/submission-0.2.3.md).
 
 ## Use
 
 1. Right-click a public HTTPS image on a normal web page.
 2. Choose **Save Image to Photos**.
-3. In the system share sheet, choose **Add to Photos** if macOS offers it.
+3. Choose **Add to Photos** if macOS offers it.
 
-The extension prepares the image automatically and attempts sharing directly in the original page. It does not open another tab. On a cross-origin image host that blocks page access, a small panel requests permission for that image host. The first permission approval may consume the user gesture, requiring one click on **Open Share Sheet** on the original page. Subsequent use of the tested authorized host opened sharing directly.
+Chrome cannot select Photos automatically, inspect the chosen destination, or verify an import. The toolbar icon opens help.
 
-Chrome cannot automatically select Photos, click the system share menu, or verify an import. A successful sharing promise only means the sharing operation completed. Safari's built-in Photos integration is not exposed to Chrome extensions.
+Some cross-origin image hosts need an optional site grant after you invoke the command. A slow transfer or permission approval can consume the user gesture; the original page then offers **Open Share Sheet** for a fresh click.
 
-## Install for local testing
+## Faster preparation after the first use
 
-1. Open `chrome://extensions` in Chrome on a Mac.
-2. Enable Developer mode and choose **Load unpacked**.
-3. Select this project's `extension` folder.
-4. To update an existing unpacked installation, click its **Reload** button.
+After the first command on a document, later trusted image right-clicks in that same document may prepare the right-clicked image while its menu is open. This can fetch and convert an image even if you close the menu or choose another action. It does not open sharing or request site permissions by itself. Selecting the command joins that preparation instead of starting a duplicate page request.
 
-The toolbar icon opens help only. Code is initially injected into the selected image frame after the user invokes the image command. On that document only, a temporary listener can prepare images on later trusted image right-clicks before the command is selected. Leaving the page removes it. No listener is installed across all websites.
+The extension keeps at most one prepared File of up to 20 MiB for 30 seconds. Leaving the document removes the listener and releases the cache. Visiting a page or hovering an image never triggers preparation. This behavior does not accelerate the first command on a newly loaded document or bypass Chrome/macOS share-menu presentation.
 
-## Compatibility and limits
+## Compatibility
 
-- Current Chrome on macOS; minimum Chrome version 128. Feature availability is checked at runtime.
-- Public HTTPS JPEG, PNG, GIF, and WebP source files up to 20 MiB.
-- WebP is converted locally to a still PNG; animation and some metadata can be lost. Other accepted formats retain their bytes.
-- A slow image transfer can outlast Chrome's transient user activation. A small in-page Open Share Sheet button then supplies the required fresh click.
-- Page Permissions Policy, restricted pages, cross-origin frames, enterprise policies, and macOS share destination availability can prevent sharing. Open the image itself in a normal HTTPS tab when a site blocks sharing.
-- No login cookies or referrer are sent. HTTP, data, blob, local files, redirects, authentication-only images, SVG, AVIF, and HEIC are unsupported in this version.
-- No native helper, Daydream dependency, AppleScript, background agent, analytics, developer server, or remote code.
-- No claim of support on all websites or of a verified Photos import from the sharing result.
+- Current Chrome on macOS, minimum Chrome 128, in a normal window.
+- Public HTTPS JPEG, PNG, GIF, and WebP images up to 20 MiB.
+- WebP is converted locally to a still PNG; animation and some metadata may be lost. JPEG, PNG, and GIF retain their bytes.
+- Site sharing policies, cross-origin frames, enterprise settings, and restricted browser pages can block sharing. Opening the image in its own HTTPS tab may help.
+- HTTP images, local files, blob/data URLs, redirects, login-only images, SVG, AVIF, and HEIC are unsupported in this version.
 
 ## Permissions and privacy
 
-- `contextMenus`: add the image-only Save Image to Photos command.
-- `activeTab`: temporarily access the selected page after the explicit menu action.
-- `scripting`: execute packaged image preparation and sharing code in that page's isolated extension world.
-- Optional HTTPS host access: retrieve an explicitly selected image if page CORS blocks it and the user approves its host.
+- `contextMenus`: add the image-only command.
+- `activeTab`: temporarily access the selected page after the explicit command.
+- `scripting`: run packaged preparation and sharing code in the selected image frame.
+- Optional HTTPS host access: retrieve an explicitly selected image when page CORS blocks it and you approve its host.
 
-No storage permission or persistent content script is used. Pending cross-origin selections are held briefly in the extension service worker's memory, bound to the originating tab and document, and expire after one minute. Prepared image data lives in the injected script until dismissed, replaced, or the page is left. The packaged policy describes the current direct-sharing flow, including later right-click preparation. The public policy is available through GitHub Pages.
+No storage permission, persistent all-sites content script, native messaging, helper application, analytics, advertising, account, or developer server is used. Image requests omit credentials and referrers and reject redirects. Images are processed locally and requested from their original image hosts. Local diagnostic console messages contain elapsed stages, not image URLs or bytes.
+
+Read the [privacy policy and support page](https://fenc3s.github.io/save-image-to-photos/) for right-click preparation, short-lived memory caches, optional grants, and system-managed sharing files.
+
+## Install for local testing
+
+1. Open `chrome://extensions` on a Mac.
+2. Enable Developer mode and choose **Load unpacked**.
+3. Select the `extension` directory.
+4. Use **Reload** to apply later changes to the unpacked installation.
 
 ## Development
 
-Requirements: Node.js 22+ and Python 3, used only for development and packaging.
+Node.js 22+ and Python 3 are used for tests and packaging; neither is required to run the extension.
 
 ```sh
 npm test
 npm run package
 ```
 
-The package script produces `../save-image-to-photos-0.2.3.zip` with manifest.json at the root, a separate source ZIP, and SHA-256 checksums. The extension runs without Node.js or Python installed.
+The packager writes the extension ZIP, a source ZIP, and SHA-256 checksums in the parent directory. The `docs` directory is published with GitHub Pages. Policy, store listing, permission explanations, screenshots, and reviewer instructions must stay consistent with each release.
 
-Before a store update, revise the live privacy policy, store description, permission justifications, reviewer instructions, and product screenshots for the new flow. The screenshots in `store/assets` show the previous submitted version and are retained as historical assets.
+## Links
 
-## References
-
+- [Source code](https://github.com/Fenc3s/save-image-to-photos)
+- [Privacy and support](https://fenc3s.github.io/save-image-to-photos/)
+- [Contact support](mailto:homer.curious@gmail.com)
 - [Web Share specification](https://www.w3.org/TR/web-share/)
 - [Chrome activeTab permission](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab)
 - [Chrome scripting API](https://developer.chrome.com/docs/extensions/reference/api/scripting)
-- [Chrome 128: Web Share on macOS](https://developer.chrome.com/release-notes/128)
-
-
-## Performance in version 0.2.1
-
-Image requests prefer Chrome's existing HTTP cache rather than bypassing it with no-store. The original page's cache partition remains the first choice, including for CORS-enabled CDN images. Origin pairs that actually fail cross-origin access are remembered briefly in worker memory, avoiding a known failing page request on subsequent selections.
-
-The most recently selected prepared File is reused for 30 seconds on the same page. This cache holds at most one File of up to 20 MiB, uses no extension storage, expires automatically, and is tied to that page's script context. Repeating the same image avoids another fetch and WebP conversion. Version 0.2.3 adds the right-click preparation behavior described below; visiting a page alone never fetches an image through this extension.
-
-These optimizations are generic and contain no X-specific URL or DOM rules. They reduce extension preparation work; Chrome/macOS still controls native file checks and share-sheet presentation. Browser and OS presentation latency has not been quantified after the final change; do not claim a measured end-to-end speedup.
-
-## Diagnosing native menu latency
-
-Version 0.2.2 writes elapsed preparation times to the selected page’s local developer console, prefixed with `[Save Image to Photos]`. Stages cover injection, image bytes, file preparation or reuse, and the call to `navigator.share`. Logs contain no image URLs, page contents, or image bytes and are not uploaded or stored by the extension. Timing starts when the context-menu event reaches the service worker, so it excludes any earlier worker startup delay.
-
-The final stage measures when the extension calls Chrome, not when the system menu becomes visible. Web Share provides no menu-open event; its promise completes after the sharing operation or cancellation. Do not interpret promise duration as menu-opening latency. Chromium’s macOS implementation prepares directories and writes shared files before presenting the native picker. This build adds measurement only and makes no new speed claim. See `store/latency-0.2.2.md` for the measured results and observation limits.
-
-## Right-click preparation in version 0.2.3
-
-After the first command invocation on a document, later trusted right-clicks on image elements in that same document may prepare the image while its context menu is open. This can fetch and convert an image even if the user ultimately chooses another menu action or closes the menu. It does not open sharing or request site permissions until the user chooses the extension command. It never fetches images merely because a page loads or an image is hovered.
-
-Preparation uses the existing page CORS path, omits credentials and referrers, rejects redirects, enforces the existing HTTPS and 20 MiB limits, and reuses the one-file 30-second memory cache. Selecting the command joins an in-flight preparation instead of starting a duplicate page request. Failures remain quiet until the command is selected. A new right-click replaces the pending preparation. Leaving the document removes the listener and releases the cache.
-
-This does not accelerate the first command on a newly loaded page, bypass cross-origin restrictions, or remove Chrome/macOS share presentation time. No manifest permissions were added. The shipped privacy page and the GitHub Pages policy describe this behavior.
-
-## Project links
-
-- Source: https://github.com/Fenc3s/save-image-to-photos
-- Privacy policy and support: https://fenc3s.github.io/save-image-to-photos/
-- Contact: homer.curious@gmail.com

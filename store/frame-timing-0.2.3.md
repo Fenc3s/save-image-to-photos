@@ -2,7 +2,7 @@
 
 ## Outcome
 
-Version 0.2.3 adds preparation during subsequent image context menus in the document where the extension has already been used. It uses exactly the same manifest permissions as 0.2.2. It was reloaded in Chrome and the X warmup route was exercised successfully. No store upload or submission was performed. Sharing tests were cancelled without selecting a destination.
+Version 0.2.3 adds preparation during subsequent image context menus in the document where the extension has already been used. It uses exactly the same manifest permissions as 0.2.2. It was reloaded in Chrome and the X warmup route was exercised successfully. At the time of timing validation, no store update had been performed. Version 0.2.3 was subsequently submitted; see the submission record. Sharing tests were cancelled without selecting a destination.
 
 ## Measurement method
 
@@ -40,9 +40,6 @@ This establishes the implemented route, not a matched end-to-end speedup percent
 
 All 24 Node tests passed, including in-flight request joining, absence of automatic sharing, trusted-event and URL restrictions, quiet CORS handoff, authorized worker-byte fallback after warmup failure, and navigation cleanup. Comparing manifests confirmed identical required and optional permissions and no content_scripts entry. The native UI confirmed version 0.2.3 enabled.
 
-- `diagnostic-logs-0.2.3.json`: local console stage evidence.
-- `../../share-frame-timing.png`: cropped, timestamped recording frames.
-- `../../share-diagnostic-0.2.3.png`: live native share-sheet screenshot.
-- The original local recording and frame-analysis source are retained in the workspace work directory. Nothing was uploaded.
+Diagnostic logs, full-screen recordings, and native screenshots are retained locally and are not published in this repository.
 
 The packaged policy describes the new right-click behavior. The live privacy site and Chrome Web Store submission still describe the previously submitted version; they must be updated together before submitting this version.
